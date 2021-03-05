@@ -1,0 +1,156 @@
+version 0.5.21
+	- In phase_function_component.cpp, convolve phase_function now
+	  correctly performed up to pf(FLOTSAM_NUM_SMOOTHING_VALUES,__),
+	  thanks to Jeronimo Escribano
+
+version 0.5.20 (16 February 2018)
+	- Added SZA-dependent scaling of lobe radiances at low optical
+	  depths to account for a similar effect that has already been
+	  accounted for in diffuse fluxes
+	- Tuned settings a little for aerosol cases
+
+version 0.5.19 (16 February 2018)
+	- Reverted prefactor on lobe calculation ("revision2") to ensure
+	  energy conservation in fluxes
+	- Reverted secants used in beam-to-diffuse exchange ("revision5")
+	  to improve reflectance at low viewing angle
+	- Generalized two-stream gamma1/gamma2 calculation since PIFM is
+	  not theoretically correct for near isotropic phase functions
+	- Increased scaling-up of diffuse fluxes since reference optical
+	  depth should probably be only half the optical depth of the
+	  profile
+	- Tunables controlled more from base.hpp
+
+version 0.5.18 (13 Febrary 2018)
+	- Fix calculation of prob_direct_to.diffuse_[up|dn]
+	- Fixed bug in polynomial smoothed phase function lookup
+	- Instead of reading in phase_function_file, can specify the 6
+	  components with phase_function_components, which uses the fitted
+	  phase function for the direct component
+
+version 0.5.17 (29 January 2018)
+	- Predict the angular variance of the phase function and use to
+	  interpolate smoothed phase function
+	- Added mode=internals which outputs Matlab script of internal
+	  arrays, and test/do_internals.sh for performing such runs
+
+version 0.5.16 (8 January 2018)
+	- <complex.h> -> <complex> in bi_directional_surface_reflectivity.hpp
+	- Removed unneeded "typename" from reflectance.cpp
+	- New set of 6 basis functions for fitting phase functions
+	  (replacing 3)
+
+version 0.5.15 (11 December 2017)
+	- Formula to scale up radiances at low optical depth now applied
+	  to diffuse only, not lobe
+
+version 0.5.14 (20 November 2017)
+	- Formula to scale up radiances at low optical depth now a fit to
+	  theory
+	- Left in optimum configuration for aerosol
+
+version 0.5.13 (11 November 2017)
+	- Solved bug in Meador & Weaver to use sqrt, and separate path in
+	  case of conservative scattering
+	- Added option to scale up diffuse contribution to radiances at
+	  very low optical depth, as found that in Rayleigh atmospheres,
+	  flux from integrating over radiances was underestimated compared
+	  to upwelling two-stream flux
+	- do_analyse_phase_functions.sh now analyses aerosol phase
+	  functions as well as cloud
+	- Left in new optimum configuration for aerosol (see base.hpp)
+	- Added a basic README file
+
+version 0.5.12 (2 November 2017)
+	- Clarified optimum settings for aerosol and cloud in base.hpp
+	- Added slope_dist_shape option to Cox&Munk model
+	- Identified but did not yet solve horrible bug in meador_weaver:
+	  no sqrt on k
+	- Added do_rayleigh_benchmark.sh to check fluxes for Rayleigh
+	  atmosphere (identifying but not solving an erroneous resolution
+	  dependence)
+
+version 0.5.11 (22 September 2017)
+	- A fraction 0.2 of the lobe part of the phase function now goes
+	  into the forward hemisphere and hence into the diffuse up/dn
+	  streams. This reduces the overestimate of the pseudo-specular
+	  reflection at high SZA.
+	- Bug-fix in diffraction scaling when ssa < 1 (previously scaled
+	  ssa could go negative)
+	- Diffuse scaling factor changed from up=1.1,dn=1.0 to
+	  up=1.05,dn=1.05; this partially accounts for the two-stream method
+	  underestimating TOA flux in pure Rayleigh conditions (base.hpp)
+	- Some algorithm revisions based on the paper are turned on with
+	  FLOTSAM_REVISION=1.  One is not because it degrades the
+	  performance. This is controlled by FLOTSAM_REVISION2
+	  (calc_beam_fluxes.hpp)
+	- Components used to fit phase function now computed dynamically
+	  in phase_function_component.cpp
+	- Added query function to return total atmospheric Rayleigh or gas
+	  absorption optical depth
+
+version 0.5.10 (19 September 2017)
+	- Completed CAMS benchmark setup in test directory
+
+version 0.5.9 (14 September 2017)
+	- Moved flotsam executable to bin directory and cleaned up
+
+version 0.5.8 (14 September 2017)
+	- Cached exponential calls resulting in 45% speed-up
+	- Jacobian function pre-allocates memory which can halve execution
+	  time
+	- "test/flotsam mode=phase_function" can analyse phase functions
+	  as well
+
+version 0.5.7 (6 September 2017)
+	- Added test program test/flotsam configurable using simple ascii
+	  file
+	- Modified algorithm in a few places to match paper (search for
+	  ADEPT_REVISION); very small impact
+
+version 0.5.6 (2 September 2017)
+	- Modularized Cox & Munk model in OceanBRDF class
+
+version 0.5.5 (1 September 2017)
+	- Added Cox & Munk model for ocean reflectance
+
+version 0.5.4 (21 February 2017)
+	- analyse_phase_functions now takes the normalization as an argument
+	- Optical depth per layer asymptotes to safe value
+	- Work-arounds for dodgy Adept 1.9.8
+	- Added compress_grid to compress clear-sky layers into one
+
+version 0.5.3 (10 February 2017)
+	- Corrected dependence on instrument zenith angle via modification
+	  to calc_beam_fluxes.h
+	- Correctly calculate Rayleigh scattering using Bucholtz (1995)
+	- Phase functions (integrating to 4pi) now carried through
+	  unscaled to beam_to_beam, where a final division by 4pi is
+	  applied, rather than dividing them by 2 when first loaded followed
+	  by a final division by 2pi
+	- Compute the asymmetry factors of the component phase functions
+	  explicitly, and use them to compute the asymmetry factor from the
+	  component weights. In the 10-micron Mie droplet test this led to
+	  too much reflection by very optically thick clouds, but this was
+	  countered by reducing the upwelling diffuse fudge factor from
+	  1.125 to 1.1.
+	- Function analyse_phase_function now computes the phase functions
+	  components, removes the delta peak and smooths according to the
+	  width of the delta peak
+	- Use *.hpp for C++ header files and have two header files for
+	  distribution: flotsam.h and flotsam.hpp
+	- Corrected the flotsam Jacobian function
+
+version 0.5.2 (6 February 2017)
+	- Added Apache 2.0 license
+
+version 0.5.1 (6 February 2017)
+	- Rewrote to be much more efficient
+	- Added autotools build system
+	- Added Doxygen markup
+
+version 0.5.0 (19 December 2016)
+	- Cleaned version ready for rewriting
+
+version 0.4.3 (16 July 2016)
+	- First development version

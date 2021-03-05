@@ -1,0 +1,93 @@
+FLOTSAM: Forward-Lobe Two-Stream Radiance Model
+
+Contact: Robin Hogan <r.j.hogan@ecmwf.int>
+
+FLOTSAM is a fast solar radiance model intended to be suitable for
+assimilating solar radiances affected by clouds and aerosols into
+models. Unlike models based on look-up tables, it can take as input an
+arbitrary layering of clouds, aerosols and Rayleigh-scattering clear
+sky. It is still under heavy development.
+
+It is coded in C++ using the Adept array and automatic-differentiation
+library to compute the Jacobian matrix.  The library presents a C
+interface (see include/flotsam.h).  An example driver program is
+bin/flotsam.cpp.  Many test scripts are in the test directory.
+
+WARNING: THIS CODE IS UNDER DEVELOPMENT AND MANY OF THE SETTINGS ARE
+SUBJECT TO CHANGE.  THIS VERSION HAS HAD ITS SETTINGS ADJUSTED TO BEST
+REPRESENT AEROSOLS, ALTHOUGH IT IS KNOWN THAT THE WAY THE PHASE
+FUNCTION IS PARAMETERIZED DOES NOT YET WORK WELL ENOUGH FOR SOME
+AEROSOL PHASE FUNCTIONS.  THIS WILL BE IMPROVED IN THE NEXT VERSION.
+
+
+INSTALLATION
+
+Before compiling FLOTSAM you will need to install the Adept library
+(version 2+) from http://www.met.reading.ac.uk/clouds/adept, ensuring
+that it finds a working BLAS library.
+
+Configure the compilation by running the ./configure script. If you
+are using the GNU compiler then it is recommended that you run the
+./configure_fast.sh script instead, as it chooses the fastest options
+for this compiler.  If you installed Adept in a non-system directory
+then you will need to tell configure where it is.  The easiest way to
+do this is to call configure_fast.sh with the ADEPT_PREFIX environment
+variable set:
+
+ADEPT_PREFIX=/path/to/adept ./configure_fast.sh
+
+This tells configure to look for Adept header files in
+/path/to/adept/include and the Adept shared library in
+/path/to/adept/lib64.
+
+Then compile with "make".  You can the try the test scripts in the
+test directory.
+
+To install you should have called the configure or configure_fast.sh
+scripts with --prefix=/path/to/flotsam argument to specify the
+location where you want to install it - at this location you will then
+find the header file include/flotsam.h, the executable bin/flotsam,
+the static library lib64/libflotsam.a and the shared library
+lib64/flotsam.so.0.0.0.
+
+
+TESTING
+
+The test directory contains a number of test scripts described in the
+test/README file.  These run the bin/flotsam executable, which call
+the algorithm using a fixed phase function at all heights.  Its usage
+is:
+
+flotsam [param1=value1] [param2=value2...] file1.cfg [file2.cfg...]
+
+where at least one ascii configuration file (*.cfg) must be provided;
+these files contain lists of configuration options and there are a
+number of examples in the test directory.  Configuration options can
+be overridden on the command line.  The scripts call this executable.
+Its output (on standard output) is of the following format:
+
+Line 1: 5 numbers:
+1: Number of solar zenith angles simulated
+2: Number of instrument zenith angles simulated
+3: Number of azimuth angles simulated
+4: Number of optical depths simulated
+5: "N" = number of values reported for each geometry and optical depth
+
+Subsequent lines: 4+N numbers:
+1: Solar zenith angle (degrees)
+2: Instrument zenith angle (degrees)
+3: Difference in azimuth angle between sun and instrument (degrees)
+4: Optical depth of particulates
+5: Normalized radiance
+6: (if present) Direct contribution to normalized radiance
+7: (if present) Lobe contribution to normalized radiance
+8: (if present) Diffuse contribution to normalized radiance
+9: (if present) Surface contribution to normalized radiance
+10:(if present) Two-stream estimate of TOA upwelling normalized flux
+
+The program also reports its settings and timings on standard error.
+The algorithm is designed to be run many times with the same geometry
+(as would be expected in an iterative retrieval algorithm or data
+assimilation system).  Therefore, the timings reported are split into
+setup calculations and reflectance calculations (there are usually
+many more of the latter).

@@ -1,0 +1,28 @@
+This directory contains a number of test scripts that run the test
+program ../bin/flotsam.  The output of this program is described in
+the top-level README file.  The scripts in this directory do the
+following:
+
+do_CAMS_benchmark.sh - Runs the CAMS intercomparison cases, producing
+files with filenames similar to flotsamXXX_full_0.00_ss_0865nm_out.dat
+indicating a full profile (rather than coarsened) with surface albedo
+0.00, sea salt aerosol at wavelength 865 nm.  The full profile
+consists of 49 layers, but faster performance may be obtained by
+"coarsening" the profile, which can be done by editing the script and
+uncommenting the MODE=coarse line near the top.  This merges the
+top-most layers into one to leave 12 layers.
+
+do_CAMS_benchmark_plots.sh - Very similar to the above but with
+slightly different settings and more output angles to facilitate
+plotting and comparison with DISORT. The DISORT reference calculations
+are in the disort_reference directory.
+
+do_timings.sh - Run FLOTSAM with profiles of an increasing number of
+layers between 1 and 1000, and report the timings of direct and
+Jacobian reflectance calculations. The output has three columns:
+1. Number of layers
+2. Average time of direct calculation in microseconds (averaged over 7280 profiles)
+3. Average time of Jacobian calculation in microseconds (averaged over 729 profiles)
+These times exclude the setup time.
+
+The other scripts are for internal development purposes.

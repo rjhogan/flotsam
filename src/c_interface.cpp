@@ -27,7 +27,8 @@ static std::map<int,BandProfile>       band_profile_list;
 static std::map<int,OceanBRDF>         ocean_brdf_list;
 
 static const char* error_messages[] 
-= {"Invalid number of albedo codes (must be 1 or 4)",
+= {"Incorrect number of spectral intervals",
+   "Invalid number of albedo codes (must be 1 or 4)",
    "Error merging gases",
    "Automatic differentiation error",
    "Input profiles must start at top-of-atmosphere",
@@ -319,6 +320,26 @@ int flotsam_init_band_profile(int iband, int ichan, int iprof) {
     return band_profile_list[iband].init(channel_list[ichan],
 					 background_profile_list[iprof]);
   }
+}
+
+int flotsam_init_band_profile_direct(int iband, int n_g, int n_z,
+				     const flotsam_real* weight,
+				     const flotsam_real* od_rayleigh,
+				     const flotsam_real* od_gas_abs) {
+  if (band_profile_list.count(iband) == 0) {
+    return FLOTSAM_INVALID_CONTEXT;
+  }
+  else {
+    const Vector weight_(const_cast<flotsam_real*>(weight), dimensions(n_g));
+    const Matrix od_rayleigh_(const_cast<flotsam_real*>(od_rayleigh), dimensions(n_g,n_z));
+    if (od_gas_abs) {
+      const Matrix od_gas_abs_(const_cast<flotsam_real*>(od_gas_abs), dimensions(n_g,n_z));
+      return band_profile_list[iband].init_direct(weight_, od_rayleigh_, od_gas_abs_);
+    }
+    else {
+      return band_profile_list[iband].init_direct(weight_, od_rayleigh_);
+    }
+  } 
 }
 
 /*

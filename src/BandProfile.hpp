@@ -51,6 +51,13 @@ namespace flotsam {
     /// background profile
     int init(const Channel& chan, const BackgroundProfile& prof);
 
+    /// Direct initialization avoiding if the Rayleigh and absorption
+    /// profiles are to be computed outside FLOTSAM, in which case the
+    /// Channel and BackgroundProfile types are not needed
+    int init_direct(const Vector& weight_,
+		    const Matrix& od_rayleigh_,
+		    const Matrix& od_gas_abs_ = Matrix()); // Default zero absorption
+
     /// Calculate angles and look-up tables that depend on them
     int set_geometry(Real mu_sun_, Real mu_inst_, Real azim_);
 

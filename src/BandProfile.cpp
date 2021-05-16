@@ -174,6 +174,35 @@ namespace flotsam {
     return FLOTSAM_SUCCESS;
   }
 
+  int BandProfile::init_direct(const Vector& weight_,
+			       const Matrix& od_rayleigh_,
+			       const Matrix& od_gas_abs_) {
+    if (weight_.size() != od_rayleigh_.size(0)) {
+      return FLOTSAM_INCORRECT_NUMBER_OF_SPECTRAL_INTERVALS;
+    }
+    n_g = weight_.size();
+    n_z = od_rayleigh_.size(1);
+    if (weight.size() != n_g) {
+      weight.clear();
+    }
+    weight = weight_;
+    if (od_rayleigh.size(0) != n_g || od_rayleigh.size(1) != n_g) {
+      od_rayleigh.clear();
+    }
+    od_rayleigh = od_rayleigh_;
+    if (od_gas_abs_.empty()) {
+      od_gas_abs.resize(n_g,n_z);
+      od_gas_abs = 0.0;
+    }
+    else {
+      if (od_gas_abs.size(0) != n_g || od_gas_abs.size(1) != n_g) {
+	od_gas_abs.clear();
+      }
+      od_gas_abs = od_gas_abs_;
+    }
+    return FLOTSAM_SUCCESS;
+  }
+
   int BandProfile::set_rayleigh_optical_depth(const Vector& od) {
     if (od.size() != n_z) {
       return FLOTSAM_INCORRECT_NUMBER_OF_LAYERS;

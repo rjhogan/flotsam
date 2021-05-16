@@ -1,0 +1,47 @@
+Puzzles
+
+
+Alternative formulations
+  - Extra term to enable better fit to phase function in backscatter direction
+  - Option to pass asymmetry factor too
+  - Option in fitting to set narrow lobe to zero
+
+Interface
+  - C++ interface
+  - Fortran-90 interface
+  - Easier extraction of additional information
+
+Features
+  - Best diffuse flux profile modelling, e.g. cubic
+  - Gas absortion for near IR
+  - Add appropriate ice shape and test
+
+Internals
+  - More comments
+
+Testing
+  - Aerosol benchmark
+  - Check automatic differentiation
+  - Check "classic" tssf method
+  - Check in CAPTIVATE
+
+Optimization
+
+Completed
+  - Why for low Rayleigh optical depths, does diffuse contribution to
+    flux (from integrating over radiance distribution) appear to be
+    too low by a factor of two, when comparing to two-stream flux
+    (which matches DISORT)? - DONE
+  * Check Rayleigh scattering vs DISORT - DONE
+  * Rayleigh scattering model - DONE
+  - Check polar plot - DONE
+  * Computing asymmetry factor properly from component shapes - DONE
+  - Fitting of phase function components - DONE 
+  - Removing of delta lobe and smoothing - DONE
+  - Smoothing according to a specified lobe shape - DONE
+  - AD on surface albedo - DONE
+  - reflectance template instantiated for true & false arguments - DONE
+  - Better surface albedo model - DONE
+  - C++ object for ocean look-up table - DONE
+  - C interface to ocean look-up table - DONE
+  - Store exponentials on first use - DONE

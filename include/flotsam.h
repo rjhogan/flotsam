@@ -53,8 +53,9 @@ extern "C" {
   static const int FLOTSAM_NUM_COMPONENTS = 7;
 
   /* Error codes */
-  static const int FLOTSAM_FIRST_ERROR_CODE = -14;
+  static const int FLOTSAM_FIRST_ERROR_CODE = -15;
 
+  static const int FLOTSAM_INCORRECT_NUMBER_OF_SPECTRAL_INTERVALS = -15;
   static const int FLOTSAM_INCORRECT_NUMBER_OF_ALBEDO_COMPONENTS = -14;
   static const int FLOTSAM_ERROR_MERGING_GASES = -13;
   static const int FLOTSAM_AUTOMATIC_DIFFERENTIATION_ERROR = -12;
@@ -231,6 +232,16 @@ extern "C" {
       the Planck function from the atmospheric profile indicated by
       "iprof" at the satellite channel indicated by "ichan" */
   int flotsam_init_band_profile(int iband, int ichan, int iprof);
+
+  /** Initialize a band profile context indicated by "iband" directly,
+      specifying the number of spectral intervals, number of layers,
+      weight of each spectral interval, Rayleigh optical depth and
+      absorption optical depth. The latter two are matrices
+      dimensioned (n_g,n_z), C-style. */
+  int flotsam_init_band_profile_direct(int iband, int n_g, int n_z,
+				       const flotsam_real* weight,
+				       const flotsam_real* od_rayleigh,
+				       const flotsam_real* od_gas_abs);
 
   /** Set the number and meaning of the components that will be used
       to describe the phase function. Note that the maximum number

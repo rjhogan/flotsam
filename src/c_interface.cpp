@@ -295,13 +295,18 @@ int flotsam_set_gas_profile(int iprof, flotsam_gas_t igas, int n,
 /// @{
 
 int flotsam_new_band_profile() {
-  int id = next_free_id(band_profile_list);
-  band_profile_list[id] = BandProfile();
+  int id;
+#pragma omp critical
+  {
+    id = next_free_id(band_profile_list);
+    band_profile_list[id] = BandProfile();
+  }
   return id;
 }
 
 int flotsam_free_band_profile(int iband) {
   if (band_profile_list.count(iband) > 0) {
+#pragma omp critical
     band_profile_list.erase(iband);
     return FLOTSAM_SUCCESS;
   }

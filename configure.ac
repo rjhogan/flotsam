@@ -16,13 +16,17 @@ AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for programs
 AC_PROG_AWK
-AC_PROG_CXX
 AC_PROG_CC
+AC_PROG_CXX
 #AC_PROG_F77
 #AC_PROG_FC
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 #AC_PROG_RANLIB
 AC_PROG_LIBTOOL
+
+# Check for OpenMP
+AC_OPENMP
+AC_SUBST(AM_CXXFLAGS,"$OPENMP_CXXFLAGS")
 
 # Header directories needed during the compilation
 AC_SUBST(AM_CPPFLAGS,"-I../include")

@@ -67,7 +67,6 @@ namespace flotsam {
 
     // just nearest-neighbour interpolation for wind
     int w_index = 0;
-     
     while (w_index < winds.size()-2 && wind > winds(w_index+1)) {
       w_index++;
     }

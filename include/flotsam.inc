@@ -311,9 +311,9 @@ interface
   !> of pigment concentration and salinity are assumed.
   integer(C_INT) function flotsam_new_ocean_brdf(wavelength, nwinds, winds) bind(C)
     use, intrinsic :: ISO_C_BINDING
-    real(FLOTSAM_REAL), intent(in) :: wavelength    !< Wavelength (m)
-    integer(C_INT),     intent(in) :: nwinds        !< Number of wind speeds
-    real(FLOTSAM_REAL), intent(in) :: winds(nwinds) !< Wind speeds (m/s)
+    real(FLOTSAM_REAL), intent(in), value :: wavelength    !< Wavelength (m)
+    integer(C_INT),     intent(in), value :: nwinds        !< Number of wind speeds
+    real(FLOTSAM_REAL), intent(in)        :: winds(nwinds) !< Wind speeds (m/s)
   end function flotsam_new_ocean_brdf
 
 
@@ -342,11 +342,11 @@ interface
   integer(C_INT) function flotsam_get_ocean_albedo_components(ibrdf, mu_sun, &
        &  mu_inst, azim, wind, albedos) bind(C)
     use, intrinsic :: ISO_C_BINDING
-    integer(C_INT),     intent(in)  :: ibrdf      !< Ocean BRDF ID
-    real(FLOTSAM_REAL), intent(in)  :: mu_sun     !< Zenith angle of sun
-    real(FLOTSAM_REAL), intent(in)  :: mu_inst    !< Zenith angle of instrument
-    real(FLOTSAM_REAL), intent(in)  :: azim       !< Azimuth angle between sun & instrument (radians)
-    real(FLOTSAM_REAL), intent(in)  :: wind       !< Wind speed (m/s)
+    integer(C_INT),     intent(in), value :: ibrdf      !< Ocean BRDF ID
+    real(FLOTSAM_REAL), intent(in), value :: mu_sun     !< Zenith angle of sun
+    real(FLOTSAM_REAL), intent(in), value :: mu_inst    !< Zenith angle of instrument
+    real(FLOTSAM_REAL), intent(in), value :: azim       !< Azimuth angle between sun & instrument (radians)
+    real(FLOTSAM_REAL), intent(in), value :: wind       !< Wind speed (m/s)
     real(FLOTSAM_REAL), intent(out) :: albedos(*) !< Returned albedo components
   end function flotsam_get_ocean_albedo_components
 

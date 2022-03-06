@@ -17,7 +17,7 @@
 #include "LookUpTable.hpp"
 #include "reflectance.hpp"
 
-//#define CATCH_CPP_ERRORS
+#define CATCH_CPP_ERRORS
 
 using namespace flotsam;
 
@@ -430,11 +430,14 @@ int flotsam_new_ocean_brdf(flotsam_real wavelength,    /**< Wavelength (m) */
 			   int nwinds,                 /**< Number of wind speeds */
 			   const flotsam_real* winds   /**< Wind speeds (m/2) */
 			   ) {
-  int id = next_free_id(ocean_brdf_list);
-  ocean_brdf_list[id] = OceanBRDF();
-  ocean_brdf_list[id].create(wavelength, 
-			     Vector(const_cast<flotsam_real*>(winds),ExpressionSize<1>(nwinds)));
-
+  int id;
+  #pragma omp critical
+  {
+    id = next_free_id(ocean_brdf_list);
+    ocean_brdf_list[id] = OceanBRDF();
+    ocean_brdf_list[id].create(wavelength, 
+			       Vector(const_cast<flotsam_real*>(winds),ExpressionSize<1>(nwinds)));
+  }
   return id;
 }
 
@@ -474,6 +477,7 @@ int flotsam_get_ocean_albedo_components(
 
 int flotsam_free_ocean_brdf(int ibrdf) {
   if (ocean_brdf_list.count(ibrdf) > 0) {
+#pragma omp critical
     ocean_brdf_list.erase(ibrdf);
     return FLOTSAM_SUCCESS;
   }

@@ -1,6 +1,6 @@
 !> @file      flotsam.inc -*- f90 -*-
 !> @brief     Fortran header for FLOTSAM solar radiance model
-!> @copyright 2021 European Centre for Medium Range Weather Forcasts
+!> @copyright 2021- European Centre for Medium Range Weather Forcasts
 !> @license   Apache License Version 2 (see the NOTICE.md file for details)
 !
 !   This file provides a Fortran interface to the FLOTSAM library
@@ -34,10 +34,13 @@ integer, parameter :: FLOTSAM_PHASE_FUNC_MAX_COMPONENTS = 7
 !> Number of ocean albedo components
 integer, parameter :: FLOTSAM_NUM_ALBEDO_COMPONENTS = 4
 
-!> Number of variables returned by flotsam_reflectance_components
-integer, parameter :: FLOTSAM_NUM_COMPONENTS = 7
+!> Number of variables returned by flotsam_reflectance_components;
+!> should not be used; rather use return value from
+!> flotsam_n_phase_function_components()
+!integer, parameter :: FLOTSAM_NUM_COMPONENTS = 6
 
 !> Error codes
+integer, parameter :: FLOTSAM_ADEPT_ERROR = -16
 integer, parameter :: FLOTSAM_FIRST_ERROR_CODE = -15
 integer, parameter :: FLOTSAM_INCORRECT_NUMBER_OF_SPECTRAL_INTERVALS = -15
 integer, parameter :: FLOTSAM_INCORRECT_NUMBER_OF_ALBEDO_COMPONENTS = -14
@@ -75,9 +78,9 @@ interface
   !> spaced in angle including the values at 0 and 180 degrees */
   real(FLOTSAM_REAL) function flotsam_interp_phase_func(n, pf, ang) bind(C)
     use, intrinsic :: ISO_C_BINDING
-    integer(C_INT),     intent(in) :: n     !> Num of phase func elements
-    real(FLOTSAM_REAL), intent(in) :: pf(n) !> Phase function
-    real(FLOTSAM_REAL), intent(in) :: ang   !> Requested angle (radians)
+    integer(C_INT),     intent(in), value :: n     !> Num of phase func elements
+    real(FLOTSAM_REAL), intent(in)        :: pf(n) !> Phase function
+    real(FLOTSAM_REAL), intent(in), value :: ang   !> Requested angle (radians)
   end function flotsam_interp_phase_func
 
   !> Pi minus the great circle angle (radians) between two points on a sphere.
@@ -87,9 +90,9 @@ interface
   !> sine of the elevation angle.
   real(FLOTSAM_REAL) function flotsam_scattering_angle(mu_sun, mu_inst, azim) bind(C)
     use, intrinsic :: ISO_C_BINDING
-    real(FLOTSAM_REAL), intent(in) :: mu_sun   !> Cosine of solar zenith angle
-    real(FLOTSAM_REAL), intent(in) :: mu_inst  !> Cosine of instrument zenith angle 
-    real(FLOTSAM_REAL), intent(in) :: azim     !> Azimuthal separation (radians)
+    real(FLOTSAM_REAL), intent(in), value :: mu_sun   !> Cosine of solar zenith angle
+    real(FLOTSAM_REAL), intent(in), value :: mu_inst  !> Cosine of instrument zenith angle 
+    real(FLOTSAM_REAL), intent(in), value :: azim     !> Azimuthal separation (radians)
   end function flotsam_scattering_angle
 
   !> Return the number of components used to parameterize phase
@@ -480,6 +483,28 @@ interface
 ! 		     const char* file_name     !< Name of file to write 
 ! 					  );
 
-!    @}
+  !> @}
+
+  !> @name Phase-function utilities
+
+  !> @{
+
+  !> Create a new band profile context, and return an ID for that
+  !> context. The ID is positive or zero; a negative number indicates
+  !> that an error occurred with the error codes as indicated above.
+  integer(C_INT) function flotsam_analyse_phase_functions(npf, &
+       &  nang, ang, pf_in, normalization, pf_out, pf_components) bind(C)
+    use, intrinsic :: ISO_C_BINDING
+    integer(C_INT), intent(in), value :: npf  !< Number of phase functions
+    integer(C_INT), intent(in), value :: nang !< Number of angles
+    real(FLOTSAM_REAL), intent(in) :: ang(nang) !< Scattering angle (radians)
+    real(FLOTSAM_REAL), intent(in) :: pf_in(nang,npf) !< Phase function in
+    real(FLOTSAM_REAL), intent(in), value :: normalization !< Integral over surf of sphere
+    real(FLOTSAM_REAL), intent(out) :: pf_out(nang,npf) !< Phase function out
+    real(FLOTSAM_REAL), intent(out) :: pf_components(*)
+  end function flotsam_analyse_phase_functions
+
+  !> @}
+
 
 end interface

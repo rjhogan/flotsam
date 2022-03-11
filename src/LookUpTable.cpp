@@ -182,7 +182,7 @@ namespace flotsam {
 
     ang_var_smoothing = ang_var_convex_lobe * range(0,FLOTSAM_NUM_SMOOTHING_VALUES);
 
-    //    std::cerr << "g = " << g_components << "\n";
+    //std::cout << "g_components = " << g_components << "\n";
 
     //    g_back_hem_components 
     //      = asymmetry_factor_from_phase_func(phase_function_components(__,__,0).T(), true);

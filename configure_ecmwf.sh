@@ -6,7 +6,7 @@ set -x
 
 # Set install location
 #INSTALLDIR=/var/tmp/$USER
-INSTALLDIR=$HOME/apps/flotsam-0.5.22
+INSTALLDIR=$HOME/apps/flotsam-0.5.23
 
 # Select version and location of Adept
 ADEPT_VER=adept-2.1-sparse-nothreads
@@ -21,8 +21,13 @@ CPPFLAGS="-I$ADEPT_PREFIX/include -DADEPT_STORAGE_THREAD_SAFE"
 
 LDFLAGS="$ADEPT_LDFLAGS" 
 
+# Optimized
 CXXFLAGS="-Wall -g1 -O2 -march=native -std=c++11"
+# Fast but possibly unsafe
 #CXXFLAGS="-Wall -g1 -O3 -march=native -std=c++11 -DADEPT_FAST" 
+# Debug version
+#CXXFLAGS="-Wall -g -Og -std=c++11 -DADEPT_BOUNDS_CHECKING"
+# Debug unoptimized version
 #CXXFLAGS="-Wall -g -O0 -std=c++11 -DADEPT_BOUNDS_CHECKING"
 
 # Call configure script

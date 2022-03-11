@@ -732,8 +732,8 @@ flotsam::ocean_brdf_lut(bool apply_shadowing, int slope_dist_shape, Real wind_sp
   Real wc_cover = 0.0;
   white_caps_reflectance(wind_spd,wavelength,wc_reflectance,wc_cover);
 
-  //***************************************************
-  //***************************************************
+  // ***************************************************
+  // ***************************************************
   //computation of the full BRDF matrix LUT
 
   for (int i = 0; i < zenith_angles.size(); i++)
@@ -768,8 +768,6 @@ flotsam::ocean_brdf_lut(bool apply_shadowing, int slope_dist_shape, Real wind_sp
 	    }
 	}
     }
-
-
 
   //Computation of the integral of brdf over phi and mu to obtain the 
   //hemispheric value and the diffuse-to-instrument or

@@ -50,11 +50,12 @@ extern "C" {
   static const int FLOTSAM_NUM_ALBEDO_COMPONENTS = 4;
 
   /* Number of variables returned by flotsam_reflectance_components */
-  static const int FLOTSAM_NUM_COMPONENTS = 7;
+  static const int FLOTSAM_NUM_COMPONENTS = 6;
 
   /* Error codes */
-  static const int FLOTSAM_FIRST_ERROR_CODE = -15;
+  static const int FLOTSAM_FIRST_ERROR_CODE = -16;
 
+  static const int FLOTSAM_ADEPT_ERROR = -16;
   static const int FLOTSAM_INCORRECT_NUMBER_OF_SPECTRAL_INTERVALS = -15;
   static const int FLOTSAM_INCORRECT_NUMBER_OF_ALBEDO_COMPONENTS = -14;
   static const int FLOTSAM_ERROR_MERGING_GASES = -13;
@@ -457,6 +458,24 @@ extern "C" {
 					  );
 
   /** @} */
+
+  /** @name Phase-function utilities */
+  
+  /** Create a new band profile context, and return an ID for that
+      context. The ID is positive or zero; a negative number indicates
+      that an error occurred with the error codes as indicated
+      above. */
+  int flotsam_analyse_phase_function(int npf,  /**< Number of phase functions */
+	     int nang, /**< Number of angles */
+	     const flotsam_real* ang, /**< Scattering angles (radians) */
+	     const flotsam_real* pf_in, /**< Phase functions in [npf,nang] */
+	     const flotsam_real normalization, /**< Integral over surface of sphere */
+             flotsam_real* pf_out, /**< Phase functions out [npf,nang] */
+	     flotsam_real* pf_components); /**< Component amplitudes out [npf,FLOTSAM_NUM_COMPONENTS]*/
+
+  /** @} */
+
+
 
 #ifdef __cplusplus
 }

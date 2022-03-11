@@ -1,12 +1,13 @@
 /// @file      c_interface.cpp
 /// @brief     Implementation of C interface for FLOTSAM solar radiance model
-/// @copyright 2016-2017 European Centre for Medium Range Weather Forcasts
+/// @copyright 2016- European Centre for Medium Range Weather Forcasts
 /// @license   Apache License Version 2 (see the NOTICE.md file for details)
 
 #include <vector>
 #include <map>
 
 #include <flotsam.h>
+#include <flotsam.hpp>
 
 #include <adept_arrays.h>
 
@@ -27,7 +28,8 @@ static std::map<int,BandProfile>       band_profile_list;
 static std::map<int,OceanBRDF>         ocean_brdf_list;
 
 static const char* error_messages[] 
-= {"Incorrect number of spectral intervals",
+= {"Error thrown by C++ Adept library",
+   "Incorrect number of spectral intervals",
    "Invalid number of albedo codes (must be 1 or 4)",
    "Error merging gases",
    "Automatic differentiation error",
@@ -967,5 +969,28 @@ int flotsam_reflectance_write_internals(int iband,  /**< Band profile ID */
     return FLOTSAM_INVALID_CONTEXT;
   }
 }
+ 
+int flotsam_analyse_phase_functions(int npf,  /**< Number of phase functions */
+	     int nang, /**< Number of angles */
+	     const flotsam_real* ang, /**< Scattering angles (radians) */
+	     const flotsam_real* pf_in, /**< Phase functions in [npf,nang] */
+	     const flotsam_real normalization, /**< Integral over surface of sphere */
+             flotsam_real* pf_out, /**< Phase functions out [npf,nang] */
+ 	     flotsam_real* pf_components) { /**< Component amplitudes out [npf,FLOTSAM_NUM_COMPONENTS]*/
+#ifdef CATCH_CPP_ERRORS
+  try {
+#endif
+    const Vector my_ang(const_cast<flotsam_real*>(ang), dimensions(nang));
+    const Matrix my_pf_in(const_cast<flotsam_real*>(pf_in), dimensions(npf,nang));
+    Matrix my_pf_out(pf_out, dimensions(npf,nang));
+    Matrix my_pf_components(pf_components, dimensions(npf,FLOTSAM_NUM_COMPONENTS));
+    flotsam::analyse_phase_functions(my_ang, my_pf_in, normalization, my_pf_out, my_pf_components);
+    return FLOTSAM_SUCCESS;
+  }
+  catch (...) {
+    return FLOTSAM_ADEPT_ERROR;
+  }
+}
+
 
 } // extern "C"

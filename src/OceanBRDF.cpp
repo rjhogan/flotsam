@@ -27,8 +27,10 @@ namespace flotsam {
     slope_dist_shape = slope_dist_shape_;
     
     // Set coordinate variables
-    zenith_angles_deg = linspace(0.0, 90.0,     91); 
-    dazims            = linspace(0.0, 2.0*M_PI, 240);
+    //zenith_angles_deg = linspace(0.0, 90.0,     91); 
+    //dazims            = linspace(0.0, 2.0*M_PI, 240);
+    zenith_angles_deg = linspace(0.0, 90.0,     46); 
+    dazims            = linspace(0.0, 2.0*M_PI, 120);
 
     // Resize look-up tables
     brdf4D.resize(winds.size(), zenith_angles_deg.size(),

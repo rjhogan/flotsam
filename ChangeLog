@@ -1,4 +1,11 @@
-version 0.5.21
+version 0.5.23 (11 March 2022)
+	- C/Fortran interface to flotsam_analyse_phase_functions, which
+	  now allows for phase functions to be provided on an irregular grid
+	  in angle, useful for strongly forward-peaked phase functions
+	- Halved resolution of ocean BRDF look-up table for speed
+
+version 0.5.22 (6 March 2022)
+	- Fixed Fortran interface (tested using a the flotsam branch of ecRad)
 	- In phase_function_component.cpp, convolve phase_function now
 	  correctly performed up to pf(FLOTSAM_NUM_SMOOTHING_VALUES,__),
 	  thanks to Jeronimo Escribano

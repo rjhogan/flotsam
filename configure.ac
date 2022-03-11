@@ -4,7 +4,7 @@
 AC_PREREQ([2.63])
 
 # Remember to update the version number for a new release
-AC_INIT([FLOTSAM], [0.5.22], [r.j.hogan@ecmwf.int],[flotsam])
+AC_INIT([FLOTSAM], [0.5.23], [r.j.hogan@ecmwf.int],[flotsam])
 
 # Most code is C++ but there is some C and some Fortran
 AC_LANG([C++])

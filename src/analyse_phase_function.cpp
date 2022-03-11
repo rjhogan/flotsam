@@ -1,6 +1,6 @@
 /** @file      analyse_phase_functions.cpp
     @brief     Analyse phase functions to use in FLOTSAM
-    @copyright 2017 European Centre for Medium Range Weather Forcasts
+    @copyright 2017- European Centre for Medium Range Weather Forcasts
     @license   Apache License Version 2 (see the NOTICE.md file for details)
  */
 
@@ -41,8 +41,8 @@ flotsam::integrate_phase_function(const adept::Vector& pf) ///< Phase function i
 void
 flotsam::analyse_phase_functions(const adept::Matrix& pf,      ///< Phase functions in
 				 adept::Real normalization,    ///< Integral over surface of sphere
-				 adept::Matrix& pf_out,        ///< Phase functions out
-				 adept::Matrix& pf_components) ///< Component amplitudes out
+				 adept::Matrix pf_out,         ///< Phase functions out
+				 adept::Matrix pf_components)  ///< Component amplitudes out
 {
   using namespace adept;
 
@@ -88,12 +88,12 @@ flotsam::analyse_phase_functions(const adept::Matrix& pf,      ///< Phase functi
 
   // Compute the amplitudes of the phase function components used to
   // approximate the original phase function
-  pf_components.resize(npf, lut.n_phase_function_components());
+  //pf_components.resize(npf, lut.n_phase_function_components());
   pf_components = 0.0;
 
   // We may need to modify first element of phase function to ensure
   // the integral equals the normalization value
-  pf_out.resize(npf, nang);
+  //pf_out.resize(npf, nang);
   pf_out = pf;
 
   Vector integral = pf_out ** weight;
@@ -132,7 +132,7 @@ flotsam::analyse_phase_functions(const adept::Matrix& pf,      ///< Phase functi
 
       Real sum_pf = 0.0;
       Real sum_pf_ang2 = 0.0;
-      for (int j = 0; j < (nang*max_delta_angle_deg)/180; ++j) {
+      for (int j = 0; j < i_max_delta; ++j) {
 	Real pf_diff = pf_out(i,j)-pf_new(j);
 	if (pf_diff > 0.0) {
 	  Real ang2 = j*M_PI/(nang-1.0);
@@ -184,6 +184,148 @@ flotsam::analyse_phase_functions(const adept::Matrix& pf,      ///< Phase functi
   std::cerr << "g_fit  = " << g_fit << "\n";
   */
 }
+
+
+/// Process raw phase functions [phase_func,angle] to compute the
+/// effective single-scattering phase function after the delta peak
+/// has been removed, and the amplitudes of the components of the
+/// phase-function decomposition. The phase functions elements need
+/// not be evenly spaced in angle, but must include 0 and pi radians.
+void
+flotsam::analyse_phase_functions(const adept::Vector& angle,   ///< Scattering angle (radians)
+				 const adept::Matrix& pf,      ///< Phase functions in
+				 adept::Real normalization,    ///< Integral over surface of sphere
+				 adept::Matrix pf_out,         ///< Phase functions out
+				 adept::Matrix pf_components)  ///< Component amplitudes out
+{
+  using namespace adept;
+
+  static const Real four_pi = 4.0*M_PI;
+  // When fitting the non-delta part of the phase function, ignore
+  // 0-15 degrees, and linearly ramp down the weight given between 30
+  // and 15 degrees
+  static const int max_delta_angle_deg = 30;
+  static const int start_rampdown_deg  = 15;
+  int npf   = pf.size(0);
+  int nang  = pf.size(1);
+  Vector cos_mid_ang(nang+1);
+  cos_mid_ang(0)   =  1.0;
+  cos_mid_ang(range(1,end-1)) = cos(0.5*(angle(range(0,end-1))+angle(range(1,end))));
+  cos_mid_ang(end) = -1.0;
+  // Area of the surface of a unit sphere corresponding to each
+  // range of scattering angle
+  Vector weight = -2.0*M_PI*(cos_mid_ang(range(1,end))
+			   - cos_mid_ang(range(0,end-1)));
+  // We only fit to scattering angles greater than 30 degrees
+  Vector weight_truncated;
+  weight_truncated = weight;
+
+  int i_max_delta = minloc(abs(angle - max_delta_angle_deg*M_PI/180.0));
+  int i_rampdown  = minloc(abs(angle - start_rampdown_deg*M_PI/180.0));
+
+  weight_truncated(range(0,i_rampdown)) = 0.0;
+  weight_truncated(range(i_rampdown+1,i_max_delta))
+    *= linspace(0.0, 1.0, i_max_delta-i_rampdown);
+  DiagMatrix weight_matrix = weight_truncated.diag_matrix();
+
+  Matrix jacobian(nang,lut.n_phase_function_components());
+  for (int i = 0; i < lut.n_phase_function_components(); ++i) {
+    jacobian(__,i) = interp(linspace(0.0,M_PI,lut.nang),
+			    lut.phase_function_components(__,i,0),
+			    angle);
+  }
+  Matrix weighted_jacobian = jacobian.T() ** weight_matrix;
+
+  // Compute the amplitudes of the phase function components used to
+  // approximate the original phase function
+  //pf_components.resize(npf, lut.n_phase_function_components());
+  pf_components = 0.0;
+
+  // We may need to modify first element of phase function to ensure
+  // the integral equals the normalization value
+  //pf_out.resize(npf, nang);
+  pf_out = pf;
+
+  Vector integral = pf_out ** weight;
+
+  for (int i = 0; i < npf; ++i) {
+    if (integral(i) < normalization) {
+      pf_out(i,0) += (normalization-integral(i)) / weight(0);
+      integral(i) = normalization;
+    }
+    // Scale the phase function
+    pf_out(i,__) *= (four_pi / integral(i));
+
+    // Least squares fit to obtain phase function components
+    pf_components(i,__) = solve(weighted_jacobian ** jacobian,
+				weighted_jacobian ** pf_out(i,__));
+
+    Real delta_component = 1.0 - sum(pf_components(i,lut.mass_component_index));
+    if (delta_component < 1.0e-3) {
+      // Delta component slightly negative: correct this by adjusting
+      // the lobe component
+      if (lut.i_lobe_component >= 0) {
+	pf_components(i,lut.i_lobe_component) += delta_component;
+      }
+    }
+    else {
+      // Characterize delta component
+      Vector pf_fit = jacobian(range(0,i_max_delta),__) ** pf_components(i,__);
+      pf_fit -= pf_fit(i_max_delta);
+      Real sum_fit
+	= sum(weight(range(0,i_max_delta))*pf_fit);
+      Real sum_delta
+	= sum(weight(range(0,i_max_delta))
+	      *(pf_out(i,range(0,i_max_delta))-pf_out(i,i_max_delta)));
+      Vector pf_new = pf_out(i,i_max_delta)
+	+ pf_fit * (sum_delta - delta_component*four_pi) / sum_fit;
+
+      Real sum_pf = 0.0;
+      Real sum_pf_ang2 = 0.0;
+      for (int j = 0; j < i_max_delta; ++j) {
+	Real pf_diff = pf_out(i,j)-pf_new(j);
+	if (pf_diff > 0.0) {
+	  Real ang2 = j*M_PI/(nang-1.0);
+	  ang2 *= ang2;
+	  sum_pf += weight(j)*pf_diff;
+	  sum_pf_ang2 += weight(j)*pf_diff*ang2;
+	}
+      }
+
+      // Subtract delta component
+      pf_out(i,range(0,i_max_delta)) = pf_new;
+
+      // Scale the phase function associated with removal of the delta
+      // component
+      Real scaling = 1.0 / (1.0-delta_component);
+      pf_out(i,__) *= scaling;
+
+      // Angular variance of the delta component
+      Real var_delta = sum_pf_ang2 / sum_pf;
+
+      if (var_delta > 0.0) {
+	Vector pf_smooth(nang);
+	Vector kernel(nang);
+
+	for (int k = 0; k < nang; ++k) {
+	  kernel = weight * exp(-(angle-angle(k))*(angle-angle(k))/var_delta);
+	  pf_smooth(k) = sum(kernel*pf_out(i,__)) / sum(kernel);
+	}
+#ifndef FLOTSAM_REVISION
+	pf_out(i,__) = 0.5*(pf_out(i,__) + pf_smooth);
+#else
+	// A larger delta component means that the effective phase
+	// function is smoothed more, hence the following weighting
+	pf_out(i,__) = (1.0-delta_component)*pf_out(i,__)
+	  + delta_component*pf_smooth;
+#endif
+	
+      }
+    }
+  }
+}
+
+
 
 /*
 /// Original method to process raw phase functions [phase_func,angle]
@@ -351,12 +493,36 @@ flotsam::analyse_phase_functions_orig(const adept::Matrix& pf, ///< Phase functi
 /// Process a single phase function to compute the effective
 /// single-scattering phase function after the delta peak has been
 /// removed, and the amplitudes of the components of the
-/// phase-function decomposition
+/// phase-function decomposition, assuming the phase function points
+/// are evenly spaced in angle
 void
 flotsam::analyse_phase_function(const adept::Vector& pf,      ///< Phase function in
 				adept::Real normalization,    ///< Integral over surface of sphere
-				adept::Vector& pf_out,        ///< Phase function out
-				adept::Vector& pf_components) ///< Component amplitudes out
+				adept::Vector pf_out,         ///< Phase function out
+				adept::Vector pf_components)  ///< Component amplitudes out
+{
+  using namespace adept;
+  int nang = pf.size();
+  Matrix pf_mat(1,nang);
+  Matrix pf_mat_out(1,nang);
+  Matrix pf_mat_components(1,lut.n_phase_function_components());
+  pf_mat(0,__) = pf;
+  flotsam::analyse_phase_functions(pf_mat, normalization, pf_mat_out, pf_mat_components);
+  pf_out = pf_mat_out(0,__);
+  pf_components = pf_mat_components(0,__);
+}
+
+/// Process a single phase function to compute the effective
+/// single-scattering phase function after the delta peak has been
+/// removed, and the amplitudes of the components of the
+/// phase-function decomposition, where the scattering angle is
+/// provided explicitly
+void
+flotsam::analyse_phase_function(const adept::Vector& angle,   ///< Scattering angle (radians)
+				const adept::Vector& pf,      ///< Phase function in
+				adept::Real normalization,    ///< Integral over surface of sphere
+				adept::Vector pf_out,         ///< Phase function out
+				adept::Vector pf_components)  ///< Component amplitudes out
 {
   using namespace adept;
   int nang = pf.size();
@@ -364,13 +530,10 @@ flotsam::analyse_phase_function(const adept::Vector& pf,      ///< Phase functio
   Matrix pf_mat_out(1,nang);
   Matrix pf_mat_components(1,nang);
   pf_mat(0,__) = pf;
-  flotsam::analyse_phase_functions(pf_mat, normalization, pf_mat_out, pf_mat_components);
+  flotsam::analyse_phase_functions(angle, pf_mat, normalization, pf_mat_out, pf_mat_components);
   pf_out = pf_mat_out(0,__);
   pf_components = pf_mat_components(0,__);
 }
-
-// Need Adept's "spread" function
-#if ADEPT_VERSION >= 10910
 
 /// Spherical convolution of phase function "pf" (linearly spaced in
 /// angle between 0 and 180 degrees) with the phase function component
@@ -460,4 +623,3 @@ flotsam::convolve_phase_function(const adept::Vector& pf, ///< Phase function in
   return pf_conv;
 }
 
-#endif // Adept version >= 1.9.10

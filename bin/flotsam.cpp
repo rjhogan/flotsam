@@ -135,8 +135,8 @@ static bool read_phase_function(rc_data* config,
     
     Real integral = flotsam::integrate_phase_function(pf);
     
-    pf_smooth.clear();
-    pf_components.clear();
+    pf_smooth.resize(pf.dimensions());
+    pf_components.resize(flotsam_n_phase_function_components());
     flotsam::analyse_phase_function(pf, 4.0*M_PI, pf_smooth, pf_components);
     
     std::cerr << "Reading phase function from " << file_name << ":\n"
@@ -178,7 +178,8 @@ static int analyse_pf(rc_data* config) {
   pfs(0,__) = linspace(0,180.0,nang);
   pfs(1,__) = pf_orig;
   pfs(2,__) = pf_smooth;
-  pfs(range(5,7),__) = flotsam::reconstruct_phase_function(nang, pf_components);
+  Matrix reconstructed_pf = flotsam::reconstruct_phase_function(nang, pf_components);
+  pfs(range(5,7),__) = reconstructed_pf(range(0,2),__);
 
   std::cerr << "First phase function convolution...\n";
   Vector pf_conv1 = flotsam::convolve_phase_function(pf_smooth);

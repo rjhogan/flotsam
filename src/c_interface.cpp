@@ -976,14 +976,14 @@ int flotsam_analyse_phase_functions(int npf,  /**< Number of phase functions */
 	     const flotsam_real* pf_in, /**< Phase functions in [npf,nang] */
 	     const flotsam_real normalization, /**< Integral over surface of sphere */
              flotsam_real* pf_out, /**< Phase functions out [npf,nang] */
- 	     flotsam_real* pf_components) { /**< Component amplitudes out [npf,FLOTSAM_NUM_COMPONENTS]*/
+ 	     flotsam_real* pf_components) { /**< Component amplitudes out [npf,n_phase_function_components]*/
 #ifdef CATCH_CPP_ERRORS
   try {
 #endif
     const Vector my_ang(const_cast<flotsam_real*>(ang), dimensions(nang));
     const Matrix my_pf_in(const_cast<flotsam_real*>(pf_in), dimensions(npf,nang));
     Matrix my_pf_out(pf_out, dimensions(npf,nang));
-    Matrix my_pf_components(pf_components, dimensions(npf,FLOTSAM_NUM_COMPONENTS));
+    Matrix my_pf_components(pf_components, dimensions(npf,lut.n_phase_function_components()));
     flotsam::analyse_phase_functions(my_ang, my_pf_in, normalization, my_pf_out, my_pf_components);
     return FLOTSAM_SUCCESS;
   }

@@ -34,10 +34,9 @@ integer, parameter :: FLOTSAM_PHASE_FUNC_MAX_COMPONENTS = 7
 !> Number of ocean albedo components
 integer, parameter :: FLOTSAM_NUM_ALBEDO_COMPONENTS = 4
 
-!> Number of variables returned by flotsam_reflectance_components;
-!> should not be used; rather use return value from
-!> flotsam_n_phase_function_components()
-!integer, parameter :: FLOTSAM_NUM_COMPONENTS = 6
+!> Number of variables returned by flotsam_reflectance_components (NOT
+!> the number of phase-function components)
+integer, parameter :: FLOTSAM_NUM_COMPONENTS = 6
 
 !> Error codes
 integer, parameter :: FLOTSAM_ADEPT_ERROR = -16

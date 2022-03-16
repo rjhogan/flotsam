@@ -49,8 +49,9 @@ extern "C" {
   /* Number of ocean albedo components */
   static const int FLOTSAM_NUM_ALBEDO_COMPONENTS = 4;
 
-  /* Number of variables returned by flotsam_reflectance_components */
-  static const int FLOTSAM_NUM_COMPONENTS = 6;
+  /* Number of variables returned by flotsam_reflectance_components
+     (NOT the same as the number of phase function components) */
+  static const int FLOTSAM_NUM_COMPONENTS = 7;
 
   /* Error codes */
   static const int FLOTSAM_FIRST_ERROR_CODE = -16;

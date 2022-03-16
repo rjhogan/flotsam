@@ -1,6 +1,6 @@
 #!/bin/bash
 DEST=.
-PRE="flotsam0522"
+PRE="flotsam0523"
 PHASE="MieR10"
 CFG_NADIR="nadir_droplet10micron.cfg"
 CFG_POLAR="polar_droplet10micron.cfg"

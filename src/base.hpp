@@ -169,7 +169,7 @@ namespace flotsam {
   //static const adept::Real FLOTSAM_FORWARD_LOBE_REMAIN = 0.2;
   static const adept::Real FLOTSAM_FORWARD_LOBE_REMAIN = 0.55;
   //  static const adept::Real FLOTSAM_FORWARD_LOBE_REMAIN = 0.4;
-  //  static const adept::Real FLOTSAM_FORWARD_LOBE_REMAIN = 0.8;
+  // static const adept::Real FLOTSAM_FORWARD_LOBE_REMAIN = 0.8;
   // Value for exp-tan function with angle 18deg
   //  static const adept::Real FLOTSAM_FORWARD_LOBE_REMAIN = 0.734424657048408;
   //static const adept::Real FLOTSAM_FORWARD_LOBE_REMAIN = 0.0;

@@ -11,7 +11,9 @@
 #ifndef Timer_H
 #define Timer_H 1
 
-#define USE_CLOCK
+// Use the clock() timing mechanism, which has been found to be
+// unreliable on some systems
+//#define USE_CLOCK
 
 #ifdef _WIN32
 #include <windows.h>

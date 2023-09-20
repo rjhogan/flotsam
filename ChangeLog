@@ -1,6 +1,7 @@
 version 0.5.24
 	- Use the gettimeofday() rather than clock() timing mechanism by
 	  default, since the latter seems to be unreliable on some systems
+	- Added bin/ocean executable to output Cox-Munk albedo
 
 version 0.5.23 (11 March 2022)
 	- C/Fortran interface to flotsam_analyse_phase_functions, which

@@ -1,6 +1,6 @@
 /** @file      flotsam.cpp
     @brief     Offline driver for FLOTSAM solar radiance model
-    @copyright 2017 European Centre for Medium Range Weather Forcasts
+    @copyright 2017- European Centre for Medium Range Weather Forcasts
     @license   Apache License Version 2 (see the NOTICE.md file for details)
 
 */
@@ -801,6 +801,8 @@ main(int argc, const char** argv)
   std::cerr << "  time per reflectance calculation      = "
 	    << timer.timing(t_reflectance)*1000000.0/ncount << " us\n";
 
+  std::cerr << "  total time = " << timer.timing(t_setup)+timer.timing(t_brdf_setup)+timer.timing(t_geometry)+timer.timing(t_brdf_calc)+timer.timing(t_reflectance) << "\n";
+  
   timer.print_on_exit(false);
   return 0;
 }

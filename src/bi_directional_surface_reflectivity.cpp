@@ -785,6 +785,11 @@ flotsam::ocean_brdf_lut(bool apply_shadowing, int slope_dist_shape, Real wind_sp
   //factor 2 because the integration goes only from 0 to pi/2 but we need to
   //integrate in the full hemisphere (the azimuth part was done already in 
   //the first integration over the viewing hemisphere)
+
+  // Robin Hogan, 25 Aug 2023: Should the division by M_PI be here?
+  // The resulting white-sky albedo seems to be too low by a factor of
+  // pi, but it could be because FLOTSAM deals in radiances with
+  // regard to this component
   brdf_hemispheric=2./M_PI*integrate_brdf(mu_values,r_intg2*mu_values);
 
   brdf_zenith = r_intg2;
@@ -821,6 +826,7 @@ flotsam::extract_from_brdf_lut(Array3D brdf, Vector brdf_zenith, Real brdf_hemis
 
   brdf_diffuse_to_inst=interpolate_1D(xi,brdf_zenith,xinst);
   brdf_dir_to_diffuse=interpolate_1D(xi,brdf_zenith,xsun);
+  
   //  brdf_dir_to_inst=interpolate_1D(xi,r_int2,xsun);
 
   //incident diffuse hemispheric flux into diffuse hemispheric reflected flux
